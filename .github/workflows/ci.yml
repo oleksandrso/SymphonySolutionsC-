@@ -1,0 +1,35 @@
+name: Run Playwright Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: 
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Update Playwright CLI
+        run: dotnet tool update --global Microsoft.Playwright.CLI && dotnet playwright install
+
+      - name: Run tests with TRX logging
+        run: dotnet test --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: TestResults
+          path: TestResults/test-results.trx
