@@ -25,10 +25,10 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      - name: Install .NET SDK
+      - name: Install .NET SDK 9.0 Preview
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 9.0.100-preview.7  # ✅ Explicitly installing .NET 9.0 Preview
 
       - name: Restore dependencies
         run: dotnet restore
@@ -48,3 +48,4 @@ jobs:
         with:
           name: TestResults
           path: TestResults/test-results.trx
+
