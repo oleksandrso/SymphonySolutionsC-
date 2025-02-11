@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:  
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   test:
@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
 
       - name: Cache NuGet packages
-        uses: actions/cache@v4 
+        uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
@@ -26,19 +26,25 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4 
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 7.0.x
 
-      - name: Install Playwright CLI
-        run: dotnet tool update --global Microsoft.Playwright.CLI && dotnet playwright install
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Install Playwright CLI (local tool)
+        run: |
+          dotnet new tool-manifest
+          dotnet tool install Microsoft.Playwright.CLI
+          dotnet tool run playwright install
 
       - name: Run tests with TRX logging
         run: dotnet test --logger "trx;LogFileName=test-results.trx"
 
       - name: Upload test results
-        if: always() 
-        uses: actions/upload-artifact@v4  
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: TestResults
           path: TestResults/test-results.trx
