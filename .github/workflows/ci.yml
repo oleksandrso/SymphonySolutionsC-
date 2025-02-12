@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   test:
@@ -25,10 +25,10 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
             
-      - name: Install .NET SDK 9.0 Preview
+      - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.100-preview.7'
+          dotnet-version: '8.0.x'  # Изменено на стабильную версию
           
       - name: Restore dependencies
         run: dotnet restore
@@ -40,12 +40,11 @@ jobs:
           dotnet tool run playwright install
           
       - name: Run tests with TRX logging
-        run: dotnet test --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
         
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: TestResults
-          path: '**/TestResults/test-results.trx'
-
+          path: TestResults
