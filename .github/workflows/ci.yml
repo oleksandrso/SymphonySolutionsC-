@@ -35,7 +35,13 @@ jobs:
           
       - name: Restore dependencies
         run: dotnet restore
-        
+
+      - name: Install Microsoft.Playwright package
+        run: dotnet add package Microsoft.Playwright
+
+      - name: Build the project
+        run: dotnet build --configuration Release
+
       - name: Install Playwright CLI (local tool)
         run: |
           dotnet new tool-manifest
