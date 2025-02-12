@@ -12,11 +12,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+        
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -24,28 +24,28 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
             nuget-${{ runner.os }}-
-
+            
       - name: Install .NET SDK 9.0 Preview
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.100-preview.7  # ✅ Explicitly installing .NET 9.0 Preview
-
+          dotnet-version: '9.0.100-preview.7'
+          
       - name: Restore dependencies
         run: dotnet restore
-
+        
       - name: Install Playwright CLI (local tool)
         run: |
           dotnet new tool-manifest
           dotnet tool install Microsoft.Playwright.CLI
           dotnet tool run playwright install
-
+          
       - name: Run tests with TRX logging
         run: dotnet test --logger "trx;LogFileName=test-results.trx"
-
+        
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: TestResults
-          path: TestResults/test-results.trx
+          path: '**/TestResults/test-results.trx'
 
