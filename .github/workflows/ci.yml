@@ -17,6 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx264-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 \
+                                  libxcomposite1 libxdamage1 libxrandr2 \
+                                  libgbm1 libasound2 libpangocairo-1.0-0 \
+                                  libgtk-3-0 libx11-xcb1 xvfb
+
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -49,7 +57,7 @@ jobs:
           dotnet tool run playwright install
           
       - name: Run tests with TRX logging
-        run: dotnet test --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+        run: xvfb-run --auto-servernum dotnet test --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
         
       - name: Upload test results
         if: always()
@@ -57,3 +65,4 @@ jobs:
         with:
           name: TestResults
           path: TestResults
+
